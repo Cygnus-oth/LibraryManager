@@ -1,0 +1,19 @@
+To connect Java to MySQL, you use JDBC (Java Database Connectivity)
+
+Start MySQL: sudo systemctl start mysqld
+
+Enable on Boot: sudo systemctl enable mysqld
+
+Check Status: sudo systemctl status mysqld (Look for "active (running)")
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+log/psw:root/root
+data to display:
+number of books + can filter by caterory or/and auther
+number of client 
+the most borrowed books : by category or/and auther
+the client that borrow the most 
+
+
