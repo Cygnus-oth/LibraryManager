@@ -2,6 +2,10 @@ package library;
 
 
 
+import net.sf.jasperreports.engine.*;
+import java.io.InputStream;
+import java.sql.Connection;
+
 import library.charts.*;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -51,8 +55,9 @@ public class StatsWindow {
         
         testingBtn.setOnAction(e -> {
             updateSidebarStyle(sidebar, testingBtn);
+            generateJasperReport(db);
         });
-
+        
         sidebar.getChildren().addAll(logo, new Separator(), booksBtn, clientBtn, testingBtn);
         root.setLeft(sidebar);
 
@@ -105,6 +110,49 @@ public class StatsWindow {
         scene.getStylesheets().add("data:text/css," + myCss.replace(" ", "%20"));
         window.setScene(scene);
         window.show();
+    }
+    
+    
+ // Generate JasperReports PDF
+    private void generateJasperReport(DatabaseHandler db) {
+        try {
+            // Load the .jasper file from src/resources
+            InputStream reportStream = getClass().getResourceAsStream("/resources/books_report.jasper");
+
+            if (reportStream == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Report Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Report template not found!\nPlease ensure books_report.jasper is in src/resources/");
+                alert.showAndWait();
+                return;
+            }
+
+            // Get database connection
+            Connection conn = db.getConnection();
+
+            // Fill the report with data
+            JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, null, conn);
+
+            // Export to PDF on Desktop
+            String outputPath = System.getProperty("user.home") + "/Desktop/Library_Statistics_Report.pdf";
+            JasperExportManager.exportReportToPdfFile(jasperPrint, outputPath);
+
+            // Show success message
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Report Generated");
+            alert.setHeaderText("Success!");
+            alert.setContentText("The report has been saved to:\n" + outputPath);
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Report Generation Failed");
+            alert.setHeaderText("Error");
+            alert.setContentText("Failed to generate report:\n" + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
 
